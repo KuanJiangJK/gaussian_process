@@ -1,3 +1,4 @@
+library(rstan)
 N_obs <- 30
 K <- 4 # number of parameters (including the 1's colum for the intercept)
 x11 <- rnorm(N_obs) # the first index 1 means observation data, thus 2 means testing data point
@@ -22,9 +23,9 @@ stan.data <- list(N_obs= N_obs,
 
 sample_STAN <- stan(file = 'GP_multi_par.stan',
                      data = stan.data,
-                     chains = 2, 
+                     chains = 1, 
                      warmup = 1e3,
-                     iter = 3e3)
+                     iter = 2e3)
 # Chain 1: Gradient evaluation took 0.005385 seconds
 # Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 53.85 seconds.
 # Chain 1: Adjust your expectations accordingly!
@@ -50,10 +51,13 @@ plot(sample_STAN, pars = "sigman", plotfun = "stan_trace", nrow = 1)
 plot(sample_STAN, pars = c("sigmaf", "sigmaf2"), plotfun = "stan_trace", nrow = 2)
 
 posterior_samples <- rstan::extract(sample_STAN)
-beta_draws <- (posterior_samples$beta)
-rec_L2_draws <- (posterior_samples$rec_L2)
-sigmaf2_draws <- (posterior_samples$sigmaf2)
-sigman_draws <- (posterior_samples$sigman)
+eta_draws <- posterior_samples$eta
+plot(density(rnorm(1e5,0,1)))
+lines(density(eta_draws[sample(1e3,1),]), col = "red")
+beta_draws <- posterior_samples$beta
+rec_L2_draws <- posterior_samples$rec_L2
+sigmaf2_draws <- posterior_samples$sigmaf2
+sigman_draws <- posterior_samples$sigman
 
 par(mfrow=c(4,1))
 plot(density(beta_draws[,1]))
@@ -74,6 +78,7 @@ plot(density(rec_L2_draws[,3]))
 abline(v = mean(rec_L2_draws[,3]),col = "red")
 
 par(mfrow=c(2,1))
+
 plot(density(sigmaf2_draws))
 abline(v = mean(sigmaf2_draws),col = "red")
 plot(density(sigman_draws))
