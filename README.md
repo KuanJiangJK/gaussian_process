@@ -1,10 +1,10 @@
 # Gaussian Process
 
-This project uses squared-Exponential Kernel for demonstration, where parameters include magnitude (sigmaf or alpha), length scale (l, or 1/l\^2), and measurement error (sigman or sigma).
+This project uses squared-Exponential Kernel for demonstration, where parameters include magnitude (coded as sigmaf or alpha), length scale (l, or 1/l^2^), and measurement error (coded as sigman or sigma).
 
 Parameters could be determined through optimization or Bayesian hierarchical modelling. This project takes the second path.
 
-By modelling the magnitude (sigmaf or alpha) through student-t with 1 degree of freedom, sigmaf\^2 or alpha\^2 would be following an F(1, 1) distribution. Thus forming a horseshoe type of prior useful for modelling sparsity of mean function of normal distribution.
+By modelling the magnitude (sigmaf or alpha) through student-t with 1 degree of freedom, sigmaf^2^ or alpha^2^ would be following an F(1, 1) distribution. Thus forming a horseshoe type of prior useful for modelling sparsity of mean function of normal distribution.
 
 ### Some useful reference
 
