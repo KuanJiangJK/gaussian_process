@@ -30,7 +30,6 @@ data_list <- list(
 
 # Compile and sample
 rstan_options(auto_write = TRUE) # write the .rds into the directory. no need to compile next time
-options(mc.cores = parallel::detectCores())
 
 fit <- stan(
   file = "GP_single_par.stan",
@@ -43,9 +42,11 @@ fit <- stan(
 
 posterior <- rstan::extract(fit) # extract function from stan would easily clushed by the one from tidyverse
 posterior_beta <- posterior$beta
+posterior_eta <- posterior$eta
 posterior_alpha <- posterior$alpha
 posterior_F <- posterior$F # this is the posterior function value. It is different from posterior samples, wihch would be N(F, measurement error)
-
+plot.new()
+plot(X_test,posterior_eta[sample(nrow(posterior_eta),1),31:130])
 # Visual check
 plot(X_obs, Y_obs, pch = 19, main = "Generated Data", xlab = "X", ylab = "Y")
 curve(f_true, add = TRUE, col = "blue") # plot the true line

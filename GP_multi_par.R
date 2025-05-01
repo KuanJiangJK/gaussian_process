@@ -1,4 +1,5 @@
 library(rstan)
+rstan_options(auto_write = TRUE)
 N_obs <- 30
 K <- 4 # number of parameters (including the 1's colum for the intercept)
 x11 <- rnorm(N_obs) # the first index 1 means observation data, thus 2 means testing data point

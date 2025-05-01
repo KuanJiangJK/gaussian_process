@@ -1,5 +1,5 @@
 library(rstan)
-
+rstan_options(auto_write = TRUE)
 set.seed(123)
 n1 <- 30
 n2 <- 30

@@ -58,6 +58,7 @@ model {
   sigmaf ~ student_t(1, 0, 1);
   sigman ~ normal(0, 1);
   eta ~ std_normal();
+  # eta ~ multi_normal(rep_vector(0, N), diag_matrix(rep_vector(1, N))); // previously i used normal distribution here, what is the difference here? how does stan deal with vector & just a single value? When I place a normal instead of multivariate normal, what happened?
 
   // Likelihood
   Y1 ~ normal(F[1:N_obs], sigman);
