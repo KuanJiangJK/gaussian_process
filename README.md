@@ -6,7 +6,7 @@ Parameters could be determined through optimization or Bayesian hierarchical mod
 
 By modelling the magnitude (sigmaf or alpha) through student-t with 1 degree of freedom, sigmaf^2^ or alpha^2^ would be following an F(1, 1) distribution. Thus forming a horseshoe type of prior useful for modelling sparsity of mean function of normal distribution.
 
-### Some useful reference
+### Useful references
 
 Carvalho, Carlos M, Nicholas G Polson, and James G Scott. “Handling Sparsity via the Horseshoe,” n.d.
 
