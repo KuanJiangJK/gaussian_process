@@ -4,3 +4,7 @@
 .Ruserdata
 .DS_Store
 .rds
+GP_ANCOVA_output.RData
+GP_ANCOVA.rds
+GP_single_par.rds
+GP_ANCOVA_2.rds
