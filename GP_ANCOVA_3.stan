@@ -17,7 +17,7 @@ data {
 
 transformed data{
   int<lower = 1> N = N_obs + N_test;  // total number of observations
-  array[N] vector[K] X;               // total input. Store as "array" because of GP kernel function
+  array[N] vector[K] X;               // total input. Store as "array" because gp_exp_quad_cov needs X to be an array..
   for (i in 1:N_obs) {
     X[i] = X1[i];
   }
@@ -33,10 +33,10 @@ transformed data{
     group[N_obs + j] = group2[j];
   }
 
-  array[J, N] int idx_j;             // store indices per group (upper bound). We used N as length per vector because stan doesn't allow dynamic indexing and this is a common trick, we actually only used first Nj spaces per vector, others are peddings
-                                     // it tells the location within the total dataset (with size of N) of each observation for each groups.
-  array[J] int Nj;                   // number of observations per group (here I didn't differentiate if the ob is training or testing)
-  for (j in 1:J) {                   // because it will be mapped back to the reuslt vector of length of N, and we knew which ones in the N-length vecotr are training or testing
+  array[J, N] int idx_j;             // storing indices per group. We used N as length because stan doesn't allow dynamic indexing, and this seems to be a common trick, we actually only used first Nj (number of observations per group) spaces per vector, others are just peddings. intentionally left to be blank
+                                     // it tells the location of the 1st, 2nd, 3rd, ....X'th group observations in the total dataset, 
+  array[J] int Nj;                   // Nj is the number of observations per group (here for each group I didn't differentiate if the ob is training or testing)
+  for (j in 1:J) {                   // because we know the location of them in the total dataset. eventually they will be mapped back to the reuslt vector of length of N. Since we knew which ones in the N-length vecotr are training or testing, so it doesn't matter at all
     Nj[j] = 0;                       // initialize all Nj to be 0
     } 
     // Fill in indices
@@ -77,7 +77,7 @@ transformed parameters {
     K_f[i, i] += 1e-6; // jitter for stability
   }
 
-  matrix[N, N] L_Kernel;  // C decomposition. tricky when sample size gets larger.
+  matrix[N, N] L_Kernel;  // C decomposition. seems tricky when sample size gets larger.
   L_Kernel = cholesky_decompose(K_f);
   f = L_Kernel * eta; // this is f(x) before constraint
   f = f - mean(f); // constrain f(x) to make it identifiable, or it would meddle with muj
@@ -106,13 +106,13 @@ transformed parameters {
     matrix[Nj_j, Nj_j] L_Kj = cholesky_decompose(K_j);
 
     // prepare temporary group specific eta vector. why this? same reason with Xj!  L_Kj * g_eta[j]; won't be done because of padding 0's!!!!!
-    vector[Nj_j] gg_eta;
+    vector[Nj_j] gg_eta; // extract the g_eta for group g. So gg_eta
     for (n in 1: Nj_j){
       gg_eta[n] = g_eta[j,n];
     }
     vector[Nj_j] f_jj = L_Kj * gg_eta;
 
-    // Store f_jj into f_j vector
+    // Store f_jj into f_j vector. MAPPING back to the position.
     for (i in 1:Nj_j) {
       int n = idx_j[j, i];
       f_j[n] = f_jj[i];
