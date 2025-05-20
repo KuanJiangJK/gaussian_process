@@ -1,6 +1,5 @@
-// More interesting one should be Yij = f(x) + muj + eij. where a shrinkage prior being used in the non-linear effet, indicating we want to see a linear effect rather than non-linear,
-// while still retain some sensitivity to non-linear trend.
-// But what should I do to make it identifiable? (see next one GP_ANCOVA_2.Stan)
+// yij = f(x) + beta*X + muj
+
 data {
   int<lower=1> N_obs;
   int<lower=1> K;             // number of covariates
