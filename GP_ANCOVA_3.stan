@@ -1,4 +1,6 @@
-// This file model Yij = fj(x) + muj + beta*X + f(x) + e
+// Yij = fj(x) + muj + beta*X + f(x) + eij
+// F = fj(x) + muj + beta*X + f(x)
+// (y1,y2,y3,...,yn) ~ N(F, sigma^2 * In)
 // fj(x) + muj is the grouping effect. the effect could be varying on differnet x's
 // beta*X + f(x) is the base effect (the effect excluded from grouping effect?? or the base effect for all the groups to add upon...)
 
@@ -80,7 +82,7 @@ transformed parameters {
   matrix[N, N] L_Kernel;  // C decomposition. seems tricky when sample size gets larger.
   L_Kernel = cholesky_decompose(K_f);
   f = L_Kernel * eta; // this is f(x) before constraint
-  f = f - mean(f); // constrain f(x) to make it identifiable, or it would meddle with muj
+  f = f - mean(f); // suspicious: constrain f(x) to make it identifiable, or it would meddle with muj
   
   vector[N] xbeta;     // define beta * X, linear part
   for(i in 1: N){      // dot product, returning a singular. NOTICE: different from ".*", which is elementvise multiplication, returning a vector. GOOGLE IT.

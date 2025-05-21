@@ -1,4 +1,6 @@
-// yij = f(x) + beta*X + muj
+// yij = f(x) + beta*X + muj + eij
+// F = f(x) + beta*X
+// (y1,y2,y3,...,yn) ~ N(F, sigma^2 * In)
 
 data {
   int<lower=1> N_obs;
@@ -53,13 +55,13 @@ transformed parameters {
   matrix[N, N] L_Kernel;  // decomposition
   L_Kernel = cholesky_decompose(K_f);
   f = L_Kernel * eta; // this is f(x)
-  f = f - mean(f); // constrain f(x) to make it identifiable, or it would meddle with muj
-  vector[N] f_group;
+  // f = f - mean(f); // suspicious: constrain f(x) to make it identifiable, or it would meddle with muj
+  vector[N] F;
   vector[N] xbeta;
   for(i in 1: N){
     xbeta[i] = dot_product(X[i], beta);
   }
-  f_group = mu[group] + f + xbeta ; // this is the function value with group effect.
+  F = mu[group] + f + xbeta ; // this is the function value with group effect.
 }
 
 model {
@@ -71,7 +73,7 @@ model {
   eta ~ normal(0,1);
   beta ~ normal(0,1);
   // Likelihood
-  Y1 ~ normal(f_group[1:N_obs], sigma);
+  Y1 ~ normal(F[1:N_obs], sigma);
 }
 
 

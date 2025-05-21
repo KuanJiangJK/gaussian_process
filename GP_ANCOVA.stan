@@ -1,8 +1,7 @@
-// This version of ANCOVA. Yij = f(x) + muj + eij, where I constrained Sum-up of muj to be 0, because of the identifiability issues
-// Without constraint, the effect of group might be shared by the general non-linear function f(x)
-// More interesting one should be Yij = f(x) + muj + eij. where a shrinkage prior being used in the non-linear effet, indicating we want to see a linear effect rather than non-linear,
-// while still retain some sensitivity to non-linear trend.
-// But what should I do to make it identifiable? (see next one GP_ANCOVA_2.Stan)
+// yij = f(x) + muj  +eij
+// (y1,y2,y3,...,yn) ~ N(F, sigma^2 * In)
+// F = f(x) + muj 
+
 data {
   int<lower=1> N_obs;
   int<lower=1> K;             // number of covariates
@@ -54,9 +53,9 @@ transformed parameters {
   matrix[N, N] L_Kernel;  // decomposition
   L_Kernel = cholesky_decompose(K_f);
   f = L_Kernel * eta;
-  f = f - mean(f);
-  vector[N] f_group;
-  f_group = mu[group] + f; // this is the function value with group effect.
+  // f = f - mean(f); // suspicious
+  vector[N] F;
+  F = mu[group] + f; // this is the function value with group effect.
 }
 
 model {
@@ -67,7 +66,7 @@ model {
   mu ~ normal(0, 2);
   eta ~ normal(0,1);
   // Likelihood
-  Y1 ~ normal(f_group[1:N_obs], sigma);
+  Y1 ~ normal(F[1:N_obs], sigma);
 }
 
 

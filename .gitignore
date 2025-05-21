@@ -10,3 +10,5 @@ GP_single_par.rds
 GP_ANCOVA_2.rds
 GP_ANCOVA_3.rds
 compare3.RData
+no f=f-mean(f).RData
+f=f-mean(f).RData

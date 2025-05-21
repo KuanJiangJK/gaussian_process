@@ -1,6 +1,9 @@
 rm(list = ls())
 library(MASS)  # for mvrnorm
+library(rstan)
+library(ggplot2)
 
+################# Data generation ##########################
 set.seed(123)
 
 N_obs <- 70 # observations
@@ -81,6 +84,9 @@ data_nl_varying <- list(
   group2 = group2
 )
 
+################# MODEL FITTING... ######################
+
+# Lienar 
 fit_linear <- stan(
   file = "GP_ANCOVA_3.stan",
   data = data_linear,
@@ -88,7 +94,6 @@ fit_linear <- stan(
   chains = 1,
   seed = 123
 )
-
 
 # Warning messages for "linear data":
 #   1: There were 25 divergent transitions after warmup. See
@@ -128,8 +133,7 @@ fit_nl_varying <- stan(
 # to find out why this is a problem and how to eliminate them. 
 # 2: Examine the pairs() plot to diagnose sampling problems
 
-library(ggplot2)
-
+#### PLOT PLOT PLOT ####
 ### 1. Extract Posterior Samples 
 post_linear <- rstan::extract(fit_linear)
 post_nl_constant <- rstan::extract(fit_nl_constant)
