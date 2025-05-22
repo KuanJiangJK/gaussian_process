@@ -156,15 +156,15 @@ plot(post_nl_varying$alpha, main="Non-linear Varying",
 plot(density(post_linear$alpha), main="Linear ANCOVA",
      xlab="alpha", col="blue", lwd=2,
      xlim = c(0, 6))
-abline(v=mean(post_linear$alpha), col="red", lty=2)
+abline(v=median(post_linear$alpha), col="red", lty=2)
 plot(density(post_nl_constant$alpha), main="Non-linear Constant",
      xlab="alpha", col="red", lwd=2,
      xlim = c(0, 6))
-abline(v=mean(post_nl_constant$alpha), col="red", lty=2)
+abline(v=median(post_nl_constant$alpha), col="red", lty=2)
 plot(density(post_nl_varying$alpha), main="Non-linear Varying",
      xlab="alpha", col="green", lwd=2,
      xlim = c(0, 6))
-abline(v=mean(post_nl_varying$alpha), col="red", lty=2)
+abline(v=median(post_nl_varying$alpha), col="red", lty=2)
 
 
 ### 3. plots g_alpha (grouping gaussian magnitude)
@@ -186,17 +186,17 @@ plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 1"],
      xlab="Iteration", ylab="g_alpha")
 plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 2"], 
      g_alpha_data$Linear[g_alpha_data$Group=="Group 2"],
-     pch=20, col=rgb(0.8,0.2,0.5,0.3), main="Linear: Group 2",
+     pch=20, col=rgb(0.2,0.5,0.8,0.3), main="Linear: Group 2",
      xlab="Iteration", ylab="g_alpha")
 plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 3"], 
      g_alpha_data$Linear[g_alpha_data$Group=="Group 3"],
-     pch=20, col=rgb(0.5,0.8,0.2,0.3), main="Linear: Group 3",
+     pch=20, col=rgb(0.2,0.5,0.8,0.3), main="Linear: Group 3",
      xlab="Iteration", ylab="g_alpha")
 
 # Non-linear Constant
 plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 1"], 
      g_alpha_data$NonLinear_Constant[g_alpha_data$Group=="Group 1"],
-     pch=20, col=rgb(0.2,0.5,0.8,0.3), main="NL Constant: Group 1",
+     pch=20, col=rgb(0.8,0.2,0.5,0.3), main="NL Constant: Group 1",
      xlab="Iteration", ylab="g_alpha")
 plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 2"], 
      g_alpha_data$NonLinear_Constant[g_alpha_data$Group=="Group 2"],
@@ -204,16 +204,16 @@ plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 2"],
      xlab="Iteration", ylab="g_alpha")
 plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 3"], 
      g_alpha_data$NonLinear_Constant[g_alpha_data$Group=="Group 3"],
-     pch=20, col=rgb(0.5,0.8,0.2,0.3), main="NL Constant: Group 3",
+     pch=20, col=rgb(0.8,0.2,0.5,0.3), main="NL Constant: Group 3",
      xlab="Iteration", ylab="g_alpha")
 # Non-linear Constant
 plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 1"], 
      g_alpha_data$NonLinear_Varying[g_alpha_data$Group=="Group 1"],
-     pch=20, col=rgb(0.2,0.5,0.8,0.3), main="NL Varying: Group 1",
+     pch=20, col=rgb(0.5,0.8,0.2,0.3), main="NL Varying: Group 1",
      xlab="Iteration", ylab="g_alpha")
 plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 2"], 
      g_alpha_data$NonLinear_Varying[g_alpha_data$Group=="Group 2"],
-     pch=20, col=rgb(0.8,0.2,0.5,0.3), main="NL Varying: Group 2",
+     pch=20, col=rgb(0.5,0.8,0.2,0.3), main="NL Varying: Group 2",
      xlab="Iteration", ylab="g_alpha")
 plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 3"], 
      g_alpha_data$NonLinear_Varying[g_alpha_data$Group=="Group 3"],
@@ -224,29 +224,57 @@ plot(g_alpha_data$Iteration[g_alpha_data$Group=="Group 3"],
 ## Density of g_alpha 
 # Linear ANCOVA
 plot(density(post_linear$g_alpha[,1]), col="blue", lwd=2, 
-     main="Linear: g_alpha", xlab="g_alpha")
-plot(density(post_linear$g_alpha[,2]), col="red", lwd=2, 
-     main="Linear: g_alpha", xlab="g_alpha")
-plot(density(post_linear$g_alpha[,3]), col="green", lwd=2, 
-     main="Linear: g_alpha", xlab="g_alpha")
+     main="Linear: g_alpha group1", xlab="g_alpha",
+     xlim = c(0, 6))
+abline(v=median(post_linear$g_alpha[,1]), col="red", lty=2)
+plot(density(post_linear$g_alpha[,2]), col="blue", lwd=2, 
+     main="Linear: g_alpha group2", xlab="g_alpha",
+     xlim = c(0, 6))
+abline(v=median(post_linear$g_alpha[,2]), col="red", lty=2)
+plot(density(post_linear$g_alpha[,3]), col="blue", lwd=2, 
+     main="Linear: g_alpha group3", xlab="g_alpha",
+     xlim = c(0, 6))
+abline(v=median(post_linear$g_alpha[,3]), col="red", lty=2)
 
 # Non-linear Constant
-plot(density(post_nl_constant$g_alpha[,1]), col="blue", lwd=2, 
-     main="NL Constant: g_alpha", xlab="g_alpha")
+plot(density(post_nl_constant$g_alpha[,1]), col="red", lwd=2, 
+     main="NL Constant: g_alpha group1", xlab="g_alpha",
+     xlim = c(0, 6))
+abline(v=median(post_nl_constant$g_alpha[,1]), col="red", lty=2)
 plot(density(post_nl_constant$g_alpha[,2]), col="red", lwd=2, 
-     main="NL Constant: g_alpha", xlab="g_alpha")
-plot(density(post_nl_constant$g_alpha[,3]), col="green", lwd=2, 
-     main="NL Constant: g_alpha", xlab="g_alpha")
+     main="NL Constant: g_alpha group2", xlab="g_alpha",
+     xlim = c(0, 6))
+abline(v=median(post_nl_constant$g_alpha[,2]), col="red", lty=2)
+plot(density(post_nl_constant$g_alpha[,3]), col="red", lwd=2, 
+     main="NL Constant: g_alpha group3", xlab="g_alpha",
+     xlim = c(0, 6))
+abline(v=median(post_nl_constant$g_alpha[,3]), col="red", lty=2)
 
 
 # Non-linear Varying
-plot(density(post_nl_varying$g_alpha[,1]), col="blue", lwd=2, 
-     main="NL Varying: g_alpha", xlab="g_alpha")
-plot(density(post_nl_varying$g_alpha[,2]), col="red", lwd=2, 
-     main="NL Varying: g_alpha", xlab="g_alpha")
+plot(density(post_nl_varying$g_alpha[,1]), col="green", lwd=2, 
+     main="NL Varying: g_alpha group1", xlab="g_alpha",
+     xlim = c(0, 6))
+abline(v=median(post_nl_varying$g_alpha[,1]), col="red", lty=2)
+plot(density(post_nl_varying$g_alpha[,2]), col="green", lwd=2, 
+     main="NL Varying: g_alpha group2", xlab="g_alpha",
+     xlim = c(0, 6))
+abline(v=median(post_nl_varying$g_alpha[,2]), col="red", lty=2)
 plot(density(post_nl_varying$g_alpha[,3]), col="green", lwd=2, 
-     main="NL Varying: g_alpha", xlab="g_alpha")
+     main="NL Varying: g_alpha group3", xlab="g_alpha",
+     xlim = c(0, 6))
+abline(v=median(post_nl_varying$g_alpha[,3]), col="red", lty=2)
 
+
+### TRACE PLOT
+
+plot(fit_linear, pars = "alpha", plotfun = "stan_trace") + ggtitle ("Linear ANCOVA")
+plot(fit_nl_constant, pars = "alpha", plotfun = "stan_trace") + ggtitle ("Non-Linear Constant")
+plot(fit_nl_varying, pars = "alpha", plotfun = "stan_trace") + ggtitle ("Non-Linear Varying")
+
+plot(fit_linear, pars = "g_alpha", plotfun = "stan_trace", ncol = 3) + ggtitle ("Linear ANCOVA")
+plot(fit_nl_constant, pars = "g_alpha", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Constant")
+plot(fit_nl_varying, pars = "g_alpha", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Varying")
 
 
 ### 4. Posterior Predictive
@@ -349,5 +377,9 @@ plot_nl_varying <- ggplot() +
   theme_minimal() +
   scale_color_brewer(palette = "Dark2")
 
-
-
+### Plot together!!
+library(gridExtra)
+grid.arrange(
+  plot_linear, plot_nl_constant, plot_nl_varying,
+  ncol = 1  
+)
