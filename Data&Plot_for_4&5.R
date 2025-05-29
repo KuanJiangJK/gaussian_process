@@ -86,6 +86,7 @@ data_nl_varying <- list(
 
 ################# MODEL FITTING... ######################
 
+# GP_ANCOVA 4
 # Lienar 
 fit_linear <- stan(
   file = "GP_ANCOVA_4.stan",
@@ -95,7 +96,7 @@ fit_linear <- stan(
   seed = 123
 )
 
-
+# non-linear fixed intercept
 fit_nl_constant <- stan(
   file = "GP_ANCOVA_4.stan",
   data = data_nl_constant,
@@ -104,9 +105,38 @@ fit_nl_constant <- stan(
   seed = 123
 )
 
-
+# non-linear varying intercept
 fit_nl_varying <- stan(
   file = "GP_ANCOVA_4.stan",
+  data = data_nl_varying,
+  iter = 2000,
+  chains = 1,
+  seed = 123
+)
+
+
+# GP_ANCOVA 5
+# Lienar 
+fit_linear <- stan(
+  file = "GP_ANCOVA_5.stan",
+  data = data_linear,
+  iter = 2000,
+  chains = 1,
+  seed = 123
+)
+
+# non-linear fixed intercept
+fit_nl_constant <- stan(
+  file = "GP_ANCOVA_5.stan",
+  data = data_nl_constant,
+  iter = 2000,
+  chains = 1,
+  seed = 123
+)
+
+# non-linear varying intercept
+fit_nl_varying <- stan(
+  file = "GP_ANCOVA_5.stan",
   data = data_nl_varying,
   iter = 2000,
   chains = 1,
