@@ -311,3 +311,38 @@ grid.arrange(
   plot_linear, plot_nl_constant, plot_nl_varying,
   ncol = 1  
 )
+
+
+rm(list = ls())
+kidiq <- read.csv("kidiq.csv")
+
+N_obs <- nrow(kidiq)
+K <- 2 # mom IQ, mom age
+J <- 2 # highshcool or not
+X1 <- as.matrix(kidiq[,c("mom_iq","mom_age")])
+Y1 <- kidiq[,"kid_score"]
+group1 <- kidiq[, "mom_hs"]+1
+N_test <- 2
+group2 <- sample(1:2, size = N_test, replace = TRUE)
+X2_momiq <- round(seq(from = min(kidiq$mom_iq), to = max(kidiq$mom_iq), length.out = N_test))
+X2_momage <- round(seq(from = min(kidiq$mom_age), to = max(kidiq$mom_age), length.out = N_test))
+X2 <- as.matrix(cbind(X2_momiq, X2_momage))
+kidiq_stan <- list(
+  N_obs = N_obs,
+  N_test = N_test,
+  K = K,
+  J = J,
+  X1 = X1,
+  X2 = X2,
+  Y1 = Y1,
+  group1 = group1,
+  group2 = group2
+)
+kidiq_stan_fit <- stan(
+  file = "GP_ANCOVA_4.stan",
+  data = kidiq_stan,
+  iter = 2000,
+  chains = 1,
+  seed = 123
+)
+
