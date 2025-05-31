@@ -336,7 +336,7 @@ X1 <- as.matrix(kidiq[,c("mom_iq","mom_age")][sub_kidiq,])
 colnames(X1) <- NULL
 Y1 <- kidiq[,"kid_score"][sub_kidiq]
 group1 <- kidiq[, "mom_hs"][sub_kidiq]+1
-N_test <- 150
+N_test <- 100
 group2 <- sample(1:2, size = N_test, replace = TRUE)
 X2_momiq <- seq(from = min(kidiq$mom_iq), to = max(kidiq$mom_iq), length.out = N_test)
 X2_momage <- seq(from = min(kidiq$mom_age), to = max(kidiq$mom_age), length.out = N_test)
