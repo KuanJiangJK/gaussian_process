@@ -86,7 +86,7 @@ data_nl_varying <- list(
   group2 = group2
 )
 
-################# MODEL FITTING... ######################
+################# MODEL FITTING... GP_ANCOVA_4.stan ######################
 
 # GP_ANCOVA 4
 # Lienar 
@@ -116,8 +116,7 @@ fit_nl_varying <- stan(
   seed = 123
 )
 
-
-# GP_ANCOVA 5
+################# MODEL FITTING... GP_ANCOVA_5.stan ######################
 # Lienar 
 fit_linear <- stan(
   file = "GP_ANCOVA_5.stan",
@@ -146,12 +145,7 @@ fit_nl_varying <- stan(
 )
 
 
-#### PLOT PLOT PLOT ####
-### 1. Extract Posterior Samples 
-post_linear <- rstan::extract(fit_linear)
-post_nl_constant <- rstan::extract(fit_nl_constant)
-post_nl_varying <- rstan::extract(fit_nl_varying)
-
+##################### PLOT PLOT PLOT Functions ###############
 ### 2. Plots for alpha 
 plot_alpha <- function(object, col = "black", title, olim = max(object, na.rm =TRUE)){
   plot(object, main=title, 
@@ -162,7 +156,6 @@ plot_alpha <- function(object, col = "black", title, olim = max(object, na.rm =T
        xlim = c(0, olim))
   abline(v=median(object), col="red", lty=2)
 }
-
 
 plot_g_alpha <- function(object, main = NULL, col = "black", olim = max(object, na.rm = TRUE)){
   nc <- ncol(object)
@@ -183,6 +176,12 @@ plot_g_alpha_density <- function(object, main = NULL, col = "black", olim = max(
   }
 }
 
+##################### PLOT PLOT PLOT  ###############
+### 1. Extract Posterior Samples 
+post_linear <- rstan::extract(fit_linear)
+post_nl_constant <- rstan::extract(fit_nl_constant)
+post_nl_varying <- rstan::extract(fit_nl_varying)
+
 par(mfrow=c(3,2))
 plot_alpha(post_linear$alpha^2, col = "blue", title = "linear", 4)
 plot_alpha(post_nl_constant$alpha^2, col = "red", title = "nl_constant", 4)
@@ -194,7 +193,7 @@ plot_g_alpha(post_nl_constant$g_alpha^2, main = "nl", col = "red", olim = 4)
 plot_g_alpha(post_nl_varying$g_alpha^2, main = "nl", col = "green", olim = 4)
 plot_g_alpha_density(post_linear$g_alpha^2, main = "nl", col = "blue", olim = 4)
 plot_g_alpha_density(post_nl_constant$g_alpha^2, main = "nl", col = "red", olim = 4)
-plot_g_alpha_density(post_nl_varying$g_alpha^2, main = "nl", col = "green", olim = 4)
+plot_g_alpha(post_nl_varying$g_alpha^2, main = "nl", col = "green", olim = 4)
 
 ### TRACE PLOT
 
@@ -205,7 +204,7 @@ plot(fit_linear, pars = "g_alpha", plotfun = "stan_trace", ncol = 3) + ggtitle (
 plot(fit_nl_constant, pars = "g_alpha", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Constant")
 plot(fit_nl_varying, pars = "g_alpha", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Varying")
 
-### 4. Posterior Predictive
+##################### PLOT PLOT PLOT Posterior Predictive ###############
 # Linear ANCOVA
 obs_df_linear <- data.frame(
   x = data_linear$X1,
@@ -312,21 +311,36 @@ grid.arrange(
   ncol = 1  
 )
 
-
+########################### kidiq Dataset ###################
 rm(list = ls())
+# standardize functino
+std_col_stan <- function(object, cols = seq(1:ncol(object))){
+  for (i in 1:length(cols)){
+    n <- cols[i]
+    mean <- mean(object[,n])
+    s <- sd(object[,n])
+    object[,n] <- (object[,n]-mean)/s
+  }
+  return(object)
+}
+# data
 kidiq <- read.csv("kidiq.csv")
-
-N_obs <- nrow(kidiq)
+kidiq <- std_col_stan(kidiq, cols = c(1,3,4))
+N_obs <- 200
+sub_kidiq <- sample(1:nrow(kidiq), N_obs)
 K <- 2 # mom IQ, mom age
 J <- 2 # highshcool or not
-X1 <- as.matrix(kidiq[,c("mom_iq","mom_age")])
-Y1 <- kidiq[,"kid_score"]
-group1 <- kidiq[, "mom_hs"]+1
-N_test <- 2
+X1 <- as.matrix(kidiq[,c("mom_iq","mom_age")][sub_kidiq,])
+colnames(X1) <- NULL
+Y1 <- kidiq[,"kid_score"][sub_kidiq]
+group1 <- kidiq[, "mom_hs"][sub_kidiq]+1
+N_test <- 100
 group2 <- sample(1:2, size = N_test, replace = TRUE)
-X2_momiq <- round(seq(from = min(kidiq$mom_iq), to = max(kidiq$mom_iq), length.out = N_test))
-X2_momage <- round(seq(from = min(kidiq$mom_age), to = max(kidiq$mom_age), length.out = N_test))
+X2_momiq <- seq(from = min(kidiq$mom_iq), to = max(kidiq$mom_iq), length.out = N_test)
+X2_momage <- seq(from = min(kidiq$mom_age), to = max(kidiq$mom_age), length.out = N_test)
 X2 <- as.matrix(cbind(X2_momiq, X2_momage))
+colnames(X2) <- NULL
+
 kidiq_stan <- list(
   N_obs = N_obs,
   N_test = N_test,
@@ -339,10 +353,97 @@ kidiq_stan <- list(
   group2 = group2
 )
 kidiq_stan_fit <- stan(
-  file = "GP_ANCOVA_4.stan",
+  file = "GP_ANCOVA_5.stan",
   data = kidiq_stan,
   iter = 2000,
   chains = 1,
   seed = 123
 )
 
+## PLOT kidiq#####
+post_kid <- rstan::extract(kidiq_stan_fit)
+plot_alpha(post_kid$alpha^2, col = "green", title = "nl_varying", 1)
+plot_g_alpha(post_kid$g_alpha^2, main = "nl", col = "green", olim = 1)
+plot_g_alpha_density(post_kid$g_alpha^2, main = "nl", col = "green", olim = 1)
+
+plot(kidiq_stan_fit, pars = "alpha", plotfun = "stan_trace") + ggtitle ("Non-Linear Varying")
+plot(kidiq_stan_fit, pars = "g_alpha", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Varying")
+
+
+obs_df <- data.frame(
+  x = kidiq_stan$X1,
+  y = kidiq_stan$Y1,
+  group = as.factor(kidiq_stan$group1)
+)
+
+f_test <- post_kid$F[, (nrow(kidiq_stan$X1)+1):(nrow(kidiq_stan$X1)+kidiq_stan$N_test)]
+draws <- sample(1:nrow(f_test), 10)
+
+mean_df <- data.frame(
+  x = kidiq_stan$X2,
+  y = colMeans(f_test),
+  group = factor(kidiq_stan$group2)
+) 
+
+plot_df <- data.frame(
+  x = rep(kidiq_stan$X2, 10),
+  y = as.vector(t(f_test[draws,])),
+  group = factor(kidiq_stan$group2),
+  sample_f = rep(1:10, each = kidiq_stan$N_test)
+)
+
+plot_kidiq <- ggplot() +
+  geom_point(data = obs_df, aes(x = x.1, y = y, color = group), size = 1.5) +
+  geom_line(data = mean_df, aes(x = x.1, y = y, color = group), linewidth = 1.2) +
+  geom_line(data = plot_df, aes(x = x, y = y, group = interaction(sample_f, group), 
+            color = group), linewidth = 0.5, alpha = 0.5) +
+  labs(title = "Linear ANCOVA",
+       x = "X", y = "y") +
+  theme_minimal() +
+  scale_color_brewer(palette = "Dark2")
+
+
+### linear model
+model_kid <- lm(Y1 ~ X1[,1] + X1[,2] + as.factor(group1))
+summary(model_kid)
+
+########
+
+# Use observed inputs
+obs_df <- data.frame(
+  x = kidiq_stan$X1,
+  y = kidiq_stan$Y1,
+  group = as.factor(kidiq_stan$group1)
+)
+
+# Extract function draws at X1 instead of X2
+# (assumes F = [f(X1), f(X2)])
+f_obs <- post_kid$F[, 1:nrow(kidiq_stan$X1)]  # ← Use training points
+draws <- sample(1:nrow(f_obs), 10)
+
+# Average function across draws for each X1 input
+mean_df <- data.frame(
+  x = kidiq_stan$X1,
+  y = colMeans(f_obs),
+  group = factor(kidiq_stan$group1)
+)
+
+# Drawn function lines at X1
+plot_df <- data.frame(
+  x = rep(kidiq_stan$X1, 10),
+  y = as.vector(t(f_obs[draws, ])),
+  group = factor(rep(kidiq_stan$group1, times = 10)),
+  sample_f = rep(1:10, each = nrow(kidiq_stan$X1))
+)
+
+# Plot
+plot_kidiq <- ggplot() +
+  geom_point(data = obs_df, aes(x = x.1, y = y, color = group), size = 1.5) +
+  geom_line(data = mean_df, aes(x = x.1, y = y, color = group), linewidth = 1.2) +
+  geom_line(data = plot_df, 
+            aes(x = x, y = y, group = interaction(sample_f, group), color = group), 
+            linewidth = 0.5, alpha = 0.5) +
+  labs(title = "Function at Observed Inputs (X1)",
+       x = "X", y = "y") +
+  theme_minimal() +
+  scale_color_brewer(palette = "Dark2")
