@@ -147,18 +147,20 @@ fit_nl_varying <- stan(
 
 ##################### PLOT PLOT PLOT Functions ###############
 ### 2. Plots for alpha 
-plot_alpha <- function(object, col = "black", title, olim = max(object, na.rm =TRUE)){
+plot_alpha <- function(object, col = "black", breaks = 1e2, title, olim = max(object, na.rm =TRUE)){
+  par(mfrow=c(2,1))
   plot(object, main=title, 
        ylab="alpha", xlab="Iteration", pch=20, col = col,
        ylim = c(0, olim))
-  plot(density(object), main= title, 
-       xlab="alpha", col= col , lwd=2,
+  hist(object, breaks, main= title,
+       xlab = "alpha^2", col = col,
        xlim = c(0, olim))
   abline(v=median(object), col="red", lty=2)
 }
 
 plot_g_alpha <- function(object, main = NULL, col = "black", olim = max(object, na.rm = TRUE)){
   nc <- ncol(object)
+  par(mfrow=c(nc,1))
   for (i in 1:nc){
     plot(object[,i], main = paste0(main, " g_alpha ", i),
          xlab="Iteration", ylab= "g_alpha^2",
@@ -166,12 +168,12 @@ plot_g_alpha <- function(object, main = NULL, col = "black", olim = max(object, 
   }
 }
 
-plot_g_alpha_density <- function(object, main = NULL, col = "black", olim = max(object, na.rm = TRUE)){
+plot_g_alpha_density <- function(object, main = NULL, col = "black", breaks = 1e2, olim = max(object, na.rm = TRUE)){
   nc <- ncol(object)
   for (i in 1:nc){
-    plot(density(object[,i]), main = paste0(main, " g_alpha ", i),
-         xlab="g_alpha",
-         xlim = c(0, olim), lwd=2, col = col)
+    hist(object[,i], breaks, main= paste0(main, " g_alpha ", i),
+         xlab = "alpha^2", col = col,
+         xlim = c(0, olim))
     abline(v=median(object[,i]), col="red", lty=2)
   }
 }
@@ -326,7 +328,7 @@ std_col_stan <- function(object, cols = seq(1:ncol(object))){
 # data
 kidiq <- read.csv("kidiq.csv")
 kidiq <- std_col_stan(kidiq, cols = c(1,3,4))
-N_obs <- 200
+N_obs <- 150
 sub_kidiq <- sample(1:nrow(kidiq), N_obs)
 K <- 2 # mom IQ, mom age
 J <- 2 # highshcool or not
@@ -334,7 +336,7 @@ X1 <- as.matrix(kidiq[,c("mom_iq","mom_age")][sub_kidiq,])
 colnames(X1) <- NULL
 Y1 <- kidiq[,"kid_score"][sub_kidiq]
 group1 <- kidiq[, "mom_hs"][sub_kidiq]+1
-N_test <- 100
+N_test <- 150
 group2 <- sample(1:2, size = N_test, replace = TRUE)
 X2_momiq <- seq(from = min(kidiq$mom_iq), to = max(kidiq$mom_iq), length.out = N_test)
 X2_momage <- seq(from = min(kidiq$mom_age), to = max(kidiq$mom_age), length.out = N_test)
@@ -360,11 +362,12 @@ kidiq_stan_fit <- stan(
   seed = 123
 )
 
-## PLOT kidiq#####
+## PLOT kidiq #####
 post_kid <- rstan::extract(kidiq_stan_fit)
-plot_alpha(post_kid$alpha^2, col = "green", title = "nl_varying", 1)
-plot_g_alpha(post_kid$g_alpha^2, main = "nl", col = "green", olim = 1)
-plot_g_alpha_density(post_kid$g_alpha^2, main = "nl", col = "green", olim = 1)
+
+plot_alpha(post_kid$alpha^2, col = "green", breaks = 1e3, title = "nl_varying", 1)
+plot_g_alpha(post_kid$g_alpha^2, main = "nl", col = "green", olim = 2)
+plot_g_alpha_density(post_kid$g_alpha^2, breaks = 1e3, main = "nl", col = "green", olim = 1)
 
 plot(kidiq_stan_fit, pars = "alpha", plotfun = "stan_trace") + ggtitle ("Non-Linear Varying")
 plot(kidiq_stan_fit, pars = "g_alpha", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Varying")
@@ -407,43 +410,3 @@ plot_kidiq <- ggplot() +
 model_kid <- lm(Y1 ~ X1[,1] + X1[,2] + as.factor(group1))
 summary(model_kid)
 
-########
-
-# Use observed inputs
-obs_df <- data.frame(
-  x = kidiq_stan$X1,
-  y = kidiq_stan$Y1,
-  group = as.factor(kidiq_stan$group1)
-)
-
-# Extract function draws at X1 instead of X2
-# (assumes F = [f(X1), f(X2)])
-f_obs <- post_kid$F[, 1:nrow(kidiq_stan$X1)]  # ← Use training points
-draws <- sample(1:nrow(f_obs), 10)
-
-# Average function across draws for each X1 input
-mean_df <- data.frame(
-  x = kidiq_stan$X1,
-  y = colMeans(f_obs),
-  group = factor(kidiq_stan$group1)
-)
-
-# Drawn function lines at X1
-plot_df <- data.frame(
-  x = rep(kidiq_stan$X1, 10),
-  y = as.vector(t(f_obs[draws, ])),
-  group = factor(rep(kidiq_stan$group1, times = 10)),
-  sample_f = rep(1:10, each = nrow(kidiq_stan$X1))
-)
-
-# Plot
-plot_kidiq <- ggplot() +
-  geom_point(data = obs_df, aes(x = x.1, y = y, color = group), size = 1.5) +
-  geom_line(data = mean_df, aes(x = x.1, y = y, color = group), linewidth = 1.2) +
-  geom_line(data = plot_df, 
-            aes(x = x, y = y, group = interaction(sample_f, group), color = group), 
-            linewidth = 0.5, alpha = 0.5) +
-  labs(title = "Function at Observed Inputs (X1)",
-       x = "X", y = "y") +
-  theme_minimal() +
-  scale_color_brewer(palette = "Dark2")
