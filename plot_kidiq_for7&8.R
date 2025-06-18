@@ -66,7 +66,15 @@ kidiq_stan <- list(
   group2 = group2
 )
 
-kidiq_stan_fit <- stan(
+kidiq_stan_fit_7 <- stan(
+  file = "GP_ANCOVA_7.stan",
+  data = kidiq_stan,
+  iter = 2000,
+  chains = 1,
+  seed = 123
+)
+
+kidiq_stan_fit_8 <- stan(
   file = "GP_ANCOVA_8.stan",
   data = kidiq_stan,
   iter = 2000,
@@ -75,23 +83,31 @@ kidiq_stan_fit <- stan(
 )
 
 ## PLOT kidiq #####
-post_kid <- rstan::extract(kidiq_stan_fit)
+post_kid <- rstan::extract(kidiq_stan_fit_7)
+post_kid <- rstan::extract(kidiq_stan_fit_8)
+
 # plot_para(post_kid$lambda_global^2, breaks = 1e4, title = "lambda_global^2", maxlim = 1) # for GP_ANCOVA_8 only
 # plot_para(post_kid$lambda_group^2, breaks = 1e4, title = "lambda_group^2", maxlim = 1) # for GP_ANCOVA_8 only
 plot_para(post_kid$sigma^2, breaks = 1e2, title = "sigma^2")
-plot_para(post_kid$alpha^2, breaks = 5e2, title = "alpha^2", maxlim = 1)
+plot_para(post_kid$alpha^2, breaks = 3e2, title = "alpha^2", maxlim = 1)
 plot_para(post_kid$rho, breaks = 1e2, title = "rho")
 plot_para(post_kid$mu_j, title = "mu_j group")
 plot_para(post_kid$g_alpha^2, breaks = 1e2, title = "alpha^2 group", maxlim = 1.5)
 plot_para(post_kid$g_rho^2, breaks = 1e2, title = "rho^2 group", maxlim = 20)
 
-plot(kidiq_stan_fit, pars = "alpha", plotfun = "stan_trace") + ggtitle ("Non-Linear Varying")
-plot(kidiq_stan_fit, pars = "g_alpha", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Varying")
-plot(kidiq_stan_fit, pars = "rho", plotfun = "stan_trace") + ggtitle ("Non-Linear Varying")
-plot(kidiq_stan_fit, pars = "g_rho", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Varying")
-plot(kidiq_stan_fit, pars = "mu_j", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Varying")
-plot(kidiq_stan_fit, pars = "sigma", plotfun = "stan_trace", ncol = 3) + ggtitle ("Non-Linear Varying")
+plot(kidiq_stan_fit_7, pars = "alpha", plotfun = "stan_trace")
+plot(kidiq_stan_fit_7, pars = "g_alpha", plotfun = "stan_trace", nrow = 3)
+plot(kidiq_stan_fit_7, pars = "rho", plotfun = "stan_trace") 
+plot(kidiq_stan_fit_7, pars = "g_rho", plotfun = "stan_trace", nrow = 3)
+plot(kidiq_stan_fit_7, pars = "mu_j", plotfun = "stan_trace", nrow = 3)
+plot(kidiq_stan_fit_7, pars = "sigma", plotfun = "stan_trace", nrow = 3) 
 
+plot(kidiq_stan_fit_8, pars = "alpha", plotfun = "stan_trace")
+plot(kidiq_stan_fit_8, pars = "g_alpha", plotfun = "stan_trace", nrow = 3)
+plot(kidiq_stan_fit_8, pars = "rho", plotfun = "stan_trace") 
+plot(kidiq_stan_fit_8, pars = "g_rho", plotfun = "stan_trace", nrow = 3)
+plot(kidiq_stan_fit_8, pars = "mu_j", plotfun = "stan_trace", nrow = 3)
+plot(kidiq_stan_fit_8, pars = "sigma", plotfun = "stan_trace", nrow = 3) 
 ## training point for plot
 obs_df <- data.frame(
   x = kidiq_stan$X1,

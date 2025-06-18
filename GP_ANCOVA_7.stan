@@ -201,14 +201,13 @@ transformed data {
 }
 
 parameters {
-  real<lower=0> alpha;          // GP std (non-group specific)
-  real<lower=0> rho;            // GP length-scale (non-group specific)
-  vector[J] mu_j;                 // group effect (group-specific, mean)
+  real<lower=0> alpha;          // GP std (non-group)
+  real<lower=0> rho;            // GP length-scale (non-group)
+  vector[J] mu_j;                 // group effect (group-specific)
   vector<lower=0>[J] g_alpha;   // group effect (group-specific, kernel)
   vector<lower=0>[J] g_rho;     // group effect (group-specific, kernel)
   real<lower=0> sigma;          // observation noise (non-group specific)
   vector[K] beta;               // linear effect coefs (non-group specific). this should be integrated out!!
-
 }
 
 model {
