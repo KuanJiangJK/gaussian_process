@@ -12,3 +12,5 @@ GP_ANCOVA_3.rds
 compare3.RData
 no f=f-mean(f).RData
 f=f-mean(f).RData
+regularized_horseshoe.RData
+GP_ANCOVA_6.stan
