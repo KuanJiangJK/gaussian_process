@@ -14,3 +14,4 @@ no f=f-mean(f).RData
 f=f-mean(f).RData
 regularized_horseshoe.RData
 GP_ANCOVA_6.stan
+Stanfit40minutes.RData
