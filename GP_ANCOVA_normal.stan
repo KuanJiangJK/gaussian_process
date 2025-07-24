@@ -346,9 +346,9 @@ model {
   vector[N1] mu = mu_a + mu_j[group1];
   
   // priors
-  alpha ~ cauchy(0, 1);
+  alpha ~ normal(0, 1);
   rho ~ inv_gamma(5, 5);
-  g_alpha ~ cauchy(0, 1);
+  g_alpha ~ normal(0, 1);
   g_rho ~ inv_gamma(5, 5);
   mu_j ~ std_normal();
   sigma ~ std_normal();
@@ -365,6 +365,7 @@ generated quantities {
     y2[n2] = normal_rng(f2[n2], sigma);
   }
   f2glob = gp_glob_pred_rng(X2, Y1, J, K, X1, group1, group2, alpha, rho, sigma, delta);
+
 }
 
 // First run, takes about 1000 seconds for 2000 iterations over 450 training and 100 testing (2 dimensions of input, 2 groups), no warnings by the end of the sampling,
