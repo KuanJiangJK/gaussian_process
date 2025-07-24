@@ -346,9 +346,9 @@ model {
   vector[N1] mu = mu_a + mu_j[group1];
   
   // priors
-  alpha ~ cauchy(0, 1);
+  alpha ~ uniform(0, 2);
   rho ~ inv_gamma(5, 5);
-  g_alpha ~ cauchy(0, 1);
+  g_alpha ~ uniform(0, 2);
   g_rho ~ inv_gamma(5, 5);
   mu_j ~ std_normal();
   sigma ~ std_normal();
