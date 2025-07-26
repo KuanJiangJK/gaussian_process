@@ -2,6 +2,8 @@
 library(patchwork)
 library(rstan)
 library(tidyverse)
+library(ggplot2)
+
 
 kidiq <- read.csv("kidiq.csv") # load the data
 vars_to_std <- c("mom_iq", "kid_score", "mom_age") # variables to be standardized.
@@ -39,7 +41,7 @@ kidiq_stan <- list(
 kidiq_stan_fit_7 <- stan(
   file = "GP_ANCOVA_7.stan",
   data = kidiq_stan,
-  iter = 2000,
+  iter = 4000,
   chains = 1,
   seed = 123
 )
