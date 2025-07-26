@@ -359,12 +359,11 @@ generated quantities {
   vector[N2] f2;
   vector[N2] y2;
   vector[N2] f2glob;
-  
+  f2glob = gp_glob_pred_rng(X2, Y1, J, K, X1, group1, group2, alpha, rho, sigma, delta);
   f2 = gp_pred_rng(X2, Y1, J, K, X1, group1, group2, alpha, rho, sigma, delta, g_alpha, g_rho, mu_j);
   for (n2 in 1:N2){
     y2[n2] = normal_rng(f2[n2], sigma);
   }
-  f2glob = gp_glob_pred_rng(X2, Y1, J, K, X1, group1, group2, alpha, rho, sigma, delta);
 }
 
 // First run, takes about 1000 seconds for 2000 iterations over 450 training and 100 testing (2 dimensions of input, 2 groups), no warnings by the end of the sampling,
