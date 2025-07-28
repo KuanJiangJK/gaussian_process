@@ -182,41 +182,27 @@ plot_kidiq <- ggplot() +
   # observed points
   geom_point(data = obs_df, aes(x = x.1, y = y, color = group),
              size = 1.5, alpha = 0.5, show.legend = FALSE) +
-  
-  # 95% confidence ribbons
   geom_ribbon(data = mean_df, aes(x = x.1, ymin = lower, ymax = upper, fill = group), alpha = 0.2) +
-  
-  # group-specific mean prediction lines
   geom_line(data = mean_df, aes(x = x.1, y = f, color = group),
             linewidth = 1.5, alpha = 0.9) +
-  
-  # sampled functions
   geom_line(data = plot_df, aes(x = x, y = f, group = interaction(sample_f, group), color = group),
             linewidth = 0.5, alpha = 0.5, show.legend = FALSE) +
-  
-  # global effect, now as a fake color level
   geom_line(data = mean_glob_df,
             aes(x = x.1, y = y, color = "Global Effect"),
             linewidth = 0.8, alpha = 0.7, linetype = 1) +
-  
-  # axis & legend labels
   labs(title = element_blank(),
        x = "Mother's IQ", y = "Child Test Scores",
        color = "Predictive Function Values",
        fill = "95% Confidence Interval") +
-  
-  # manual color mapping including new legend entry
   scale_color_manual(
     values = c("Highschool False" = "#c23726",
                "Highschool True" = "#1d336c",
                "Global Effect" = "#fac901")
   ) +
-  
   scale_fill_manual(
     values = c("Highschool False" = "#c23726",
                "Highschool True" = "#1d336c")
   ) +
-  
   theme_classic_box +
   theme(
     legend.position = "inside",
@@ -242,8 +228,4 @@ plot_kidiq <- ggplot() +
     legend.key.height = unit(0.4, "cm"),             # taller keys
     legend.key.width = unit(1.2, "cm")               # longer legend lines
   )
-
 print(plot_kidiq)
-
-
-

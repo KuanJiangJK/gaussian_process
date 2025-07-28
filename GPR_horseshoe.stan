@@ -26,7 +26,7 @@ functions {
       matrix[N1, N1] L_K;
       vector[N1] K_div_y1;
       matrix[N1, N2] k_x1_x2;
-      matrix[N1, N2] k_x2_x2;
+      matrix[N2, N2] k_x2_x2;
       matrix[N1, N2] v_pred;
       vector[N2] f2_mu;
       matrix[N2, N2] cov_f2;
