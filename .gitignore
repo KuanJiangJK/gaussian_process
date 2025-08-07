@@ -15,8 +15,22 @@ f=f-mean(f).RData
 regularized_horseshoe.RData
 GP_ANCOVA_6.stan
 Stanfit40minutes.RData
-GP_ANCOVA_Compare_alpha2_thesis.R
-GP_ANCOVA_Compare_g_alpha2_thesis.R
 N150itr3e3Compare.RData
 4e3GP.RData
 mse of hs.RData
+GPR_horseshoe.rds
+GPR_invgamma.rds
+GPR_normal.rds
+GP_ANCOVA_7.rds
+fit_kidiq.png
+fit_results_ANCOVA.RData
+fit_results_ANCOVA_constant.RData
+fit_results_ANCOVA_finnish.RData
+fit_results_ANCOVA_finnish11.RData
+fit_results_ANCOVA_finnish21.RData
+fit_results_ANCOVA_finnish31.RData
+fit_results_ANCOVA_finnish313.RData
+fit_results_ANCOVA_hs.RData
+kidiq_stan_fit_7.RData
+posterior_summary.RData
+progress.log
