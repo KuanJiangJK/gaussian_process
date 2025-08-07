@@ -4,6 +4,7 @@ library(rstan)
 library(tidyverse)
 library(ggplot2)
 
+rm(list = ls())
 
 kidiq <- read.csv("kidiq.csv") # load the data
 vars_to_std <- c("mom_iq", "kid_score", "mom_age") # variables to be standardized.
@@ -38,13 +39,16 @@ kidiq_stan <- list(
   group2 = group2
 )
 
+options(mc.cores = parallel::detectCores())
 kidiq_stan_fit_7 <- stan(
   file = "GP_ANCOVA_7.stan",
   data = kidiq_stan,
   iter = 4000,
-  chains = 1,
+  chains = 4,
   seed = 123
 )
+
+save(kidiq_stan_fit_7, file = "kidiq_stan_fit_7.RData")
 
 # Extract stan fit
 post_kid <- rstan::extract(kidiq_stan_fit_7)
@@ -95,9 +99,9 @@ p2 <- ggplot(para_post[!(para_post$para %in% c("alpha", "sigma", "rho")), ],
   geom_boxplot(alpha = 0.5, outlier.size = 0.5) +
   facet_wrap(~ para, ncol = 3, scales = "free", 
              labeller = labeller(para = c(
-               "g_alpha" = "alpha[j]",
-               "g_rho"   = "rho[j]",
-               "mu_j"    = "mu[j]"
+               "g_alpha" = "alpha[group]",
+               "g_rho"   = "rho[group]",
+               "mu_j"    = "mu[group]"
              ),
                .default = label_parsed)) +
   scale_x_discrete(labels = c("1" = "j = 1 (Highschool False)", "2" = "j = 2 (Highschool True)")) +
@@ -229,3 +233,4 @@ plot_kidiq <- ggplot() +
     legend.key.width = unit(1.2, "cm")               # longer legend lines
   )
 print(plot_kidiq)
+

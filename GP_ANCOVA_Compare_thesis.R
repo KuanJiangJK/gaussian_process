@@ -1,4 +1,6 @@
+
 rm(list = ls())
+load(N150itr3e3Compare.RData)
 library(tidyverse)
 library(rstan)
 
@@ -414,7 +416,7 @@ main_plot <- ggplot() +
   #     x = "Standardized X", y = "Standardized Y") +
   labs(x = "Standardized X", y = "Standardized Y") +
   scale_color_manual(values = c("1" = "#c23726", "2" = "#1d336c", "3" = "#e8bf4d")) +
-  scale_fill_manual(values = c("1" = "#c23726", "2" = "#1d336c", "3" = "#e8bf4d")) +
+  scale_fill_manual(values = c("1" = "#c23726", "2" = "#1d336c", "3" = "#e8bf4d")) + #"#0e0e08"
   # scale_color_brewer(palette = "Dark2") +
   # scale_fill_brewer(palette = "Dark2") +  # add this line
   theme_classic_box +

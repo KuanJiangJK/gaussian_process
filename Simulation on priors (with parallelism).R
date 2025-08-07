@@ -15,7 +15,7 @@ standardize <- function(x) list(z = (x - mean(x)) / sd(x), mu = mean(x), sd = sd
 sim_data_list <- list()
 for (n in sample_sizes) {
   for (sigma in sigmas) {
-    set.seed(1000 + n * 100 + round(sigma * 100))
+    set.seed(1001 + n * 100 + round(sigma * 100))
     x <- rnorm(n)
     y <- beta * x + rnorm(n, sd = sigma)
     
@@ -60,7 +60,7 @@ for (m in seq_along(model_files)) {
       stan(
         file = model_files[m],
         data = stan_input,
-        iter = 2000, chains = 1,
+        iter = 5e3, chains = 1,
         seed = 1000 + m * 10 + as.integer(as.factor(label)),
         refresh = 100
       )
@@ -102,19 +102,21 @@ for (model in names(fit_results)) {
 posterior_df$model <- factor(posterior_df$model, levels = c("horseshoe", "normal", "uniform"))
 
 ggplot(posterior_df, aes(x = model, y = alpha^2, fill = model)) +
-  geom_boxplot(outlier.size = 0.5, alpha = 0.5) +
+  geom_boxplot(outlier.size = 0.5, alpha = 0.85) +
   facet_grid(sigma ~ N, labeller = label_both) +
   theme_minimal(base_size = 11) +
   theme(strip.text = element_text(face = "bold")) +
+  scale_fill_manual(values = c("horseshoe" = "#c23726", "normal" = "#1d336c", "uniform" = "#e8bf4d")) + #"#0e0e08"
   coord_cartesian(ylim = c(0, 1)) +
   labs(
-    title = expression("Posterior Distribution of " * alpha^2),
-    x = "Model",
+    title = element_blank(),
+    x = "Prior on alpha",
     y = expression(alpha^2)
   )
 
 
-###################
+################### Calculating MSE for totally linear model, each scenario 100 datasets #######################
+# using mean instead of median
 rm(list = ls())
 library(tidyverse)
 library(rstan)
@@ -167,7 +169,7 @@ for (m in seq_along(model_files)) {
         
         cat(sprintf("Fitting %s | N=%d sigma=%.2f rep=%d\n", model_name, n, sigma, rep))
         fit <- tryCatch({
-          sampling(model_fit, data = stan_data, iter = 1000, chains = 1,
+          sampling(model_fit, data = stan_data, iter = 5e3, chains = 1,
                    seed = 3000 + m * 10 + rep, refresh = 0)
         }, error = function(e) {
           message("  [ERROR]: ", e$message)
@@ -194,18 +196,19 @@ for (m in seq_along(model_files)) {
 
 # Plot2
 ggplot(mse_df, aes(x = model, y = mse, fill = model)) +
-  geom_boxplot(outlier.size = 0.5, alpha = 0.5) +
+  geom_boxplot(outlier.size = 0.5, alpha = 0.80) +
   facet_grid(sigma ~ N, labeller = label_both) +
   theme_minimal(base_size = 11) +
   theme(strip.text = element_text(face = "bold")) +
   coord_cartesian(ylim = c(0, 1)) +
+  scale_fill_manual(values = c("horseshoe" = "#c23726", "normal" = "#1d336c", "uniform" = "#e8bf4d")) + #"#0e0e08"
   labs(
-    title = expression("Posterior MSE of " * alpha^2 * " Across Replicates"),
-    x = "Model",
+    # title = expression("Posterior MSE of " * alpha^2 * " Across Replicates"),
+    x = "Prior on alpha",
     y = "Posterior MSE"
   )
 
-########################################
+######################################## Add different levels of linearity # Don't run, it takes too long
 rm(list = ls())
 library(tidyverse)
 library(rstan)
@@ -328,7 +331,7 @@ for (level in levels(posterior_summary_df$nonlinearity)) {
   print(p)
 }
 
-####### parallel running (for multi core machine)
+####### parallel running (for multi core machine)# but doesn't really work (hang)
 getwd()
 rm(list = ls())
 parallel::detectCores()

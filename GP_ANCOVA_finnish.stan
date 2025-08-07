@@ -289,15 +289,25 @@ transformed data {
 }
 
 parameters {
-  real<lower=0> alpha;          // GP std (non-group)
+  real<lower=0> lambda;          // GP std (non-group)
+  real<lower=0> c_global2;          // GP std (non-group)
   real<lower=0> rho;            // GP length-scale (non-group)
   vector[J] mu_j;                 // group effect (group-specific)
-  vector<lower=0>[J] g_alpha;   // group effect (group-specific, kernel)
+  vector<lower=0>[J] g_lambda;   // group effect (group-specific, kernel)
+  vector<lower=0>[J] c_group2;   // group effect (group-specific, kernel)
   vector<lower=0>[J] g_rho;     // group effect (group-specific, kernel)
   real<lower=0> sigma;          // observation noise (non-group specific)
   vector[K] beta;               // linear effect coefs (non-group specific). this should be integrated out!!
 }
 
+transformed parameters{
+  real<lower=0> alpha;
+  alpha = sqrt((c_global2*(lambda^2)) / (c_global2 + lambda^2));
+  vector<lower=0>[J] g_alpha;
+      for (j in 1:J) {
+      g_alpha[j] = sqrt((c_group2[j]*(g_lambda[j]^2)) / (c_group2[j] + g_lambda[j]^2));
+    }
+}
 model {
   matrix[N1, N1] L_K; // cholesky composition for the training dataset
   
@@ -350,9 +360,11 @@ model {
   vector[N1] mu = mu_a + mu_j[group1];
   
   // priors
-  alpha ~ cauchy(0, 1);
+  lambda ~ cauchy(0, 1);
   rho ~ inv_gamma(5, 5);
-  g_alpha ~ cauchy(0, 1);
+  g_lambda ~ cauchy(0, 1);
+  c_group2 ~ inv_gamma(2,1);
+  c_global2 ~ inv_gamma(2,1);
   g_rho ~ inv_gamma(5, 5);
   mu_j ~ std_normal();
   sigma ~ std_normal();
