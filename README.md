@@ -1,10 +1,28 @@
 # Gaussian Process
 
-This project uses squared-Exponential Kernel for demonstration, where parameters include magnitude (coded as sigmaf or alpha), length scale (l, or 1/l^2^), and measurement error (coded as sigman or sigma).
+This project uses squared-Exponential Kernel for demonstration, where parameters include marginal standard deviation (also called amplitude of GP, coded alpha), length scale (coded as rho). The measurement error is coded as sigma.
+Parameters could be determined through optimization or Bayesian hierarchical modelling. This project takes the second path becausue this way we can use our own belief (In the paper, this belief reflects a sparsity in nonlinearity).
+By modelling the amplitude alpha through a half-cauchy, we can induce a horseshoe behavior leading to sparsity in nonlinearity. That is to say, when there is no sufficient evidence to justify the nonlinear model, the alpha^2 would be shrinked to 0 and this model degrades to linear model.
 
-Parameters could be determined through optimization or Bayesian hierarchical modelling. This project takes the second path.
+# Code used in the paper
+## Stan code for models of the paper
+GP_ANCOVA_constant.stan corresponds to the model of GP ANCOVA with constant group shift.
+GP_ANCOVA_7.stan, GP_ANCOVA_finnish.stan, corresponds to the model of GP ANCOVA with varying group shift. The former file uses an original horse prior setting, and the latter one uses regularized horseshoe prior with an inverse-gamma(2,1) placed on c^2 regularizing the large signals.
 
-By modelling the magnitude (sigmaf or alpha) through student-t with 1 degree of freedom, sigmaf^2^ or alpha^2^ would be following an F(1, 1) distribution. Thus forming a horseshoe type of prior useful for modelling sparsity of mean function of normal distribution.
+## Simulation of priors on simple GP regression
+parallel_sim_compare_prior.R compares the effect of GP under different priors placed on alpha hyperparameter using following stan code "GPR_horseshoe.stan", "GPR_invgamma.stan" (inverse-gamma(1,1) on alpha^2), "GPR_invgamma105.stan"(inverse-gamma(1,0.5) on alpha^2), "GPR_invgamma101.stan" (inverse-gamma(1,0.1) on alpha^2).
+
+## artifical dataset 
+ANCOVA_sim.R simulate 8 artifical datasets with different nonlinearity levels in both global trend and group trend. And then used the GP_ANCOVA_constant.stan, GP_ANCOVA_7.stan, GP_ANCOVA_finnish.stan to fit the datasets.
+## kidiq dataset
+The thesis uses kidiq.csv for a practical implementation. Subsequently using GP_ANCOVA_linear.stan, GP_ANCOVA_constant.stan, GP_ANCOVA_7.stan to fit the data. 
+GP_ANCOVA_linear.stan is a stan implementation of linear ANCOVA. 
+The R code implementating these analysis are: nieuw_kidiq_linear.R for data manipulation, calling stan and visualization in linear ANCOVA setting. nieuw_kidiq_constantGPANOVA.R for GPANOCOVA with constant shift, and nieuw_kidiq.R for GPANCOVA with varying shift.
+
+
+
+
+
 
 ### Useful references
 
