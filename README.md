@@ -8,10 +8,9 @@ By modelling the amplitude alpha through a half-Cauchy, we can have an induced h
 
 # Code used in the paper (Stored in Thesis code folder)
 ## Stan code for models of the paper
-GP_ANCOVA_constant.stan corresponds to the model of GP ANCOVA with constant group shifts. This is an nonlinear extension of classical linear ANCOVA. The difference is we use GP to model the reponse-covariates relationship, instead of linear model.
+GP_ANCOVA_constant.stan corresponds to the model of GP ANCOVA with constant group shifts. This is an nonlinear extension of classical linear ANCOVA. The difference is we use GP to model the response-covariate relationship, instead of linear model.
 
 GP_ANCOVA_7.stan, GP_ANCOVA_finnish.stan, corresponds to the model of GP ANCOVA with varying group shift. The former file uses an original horse prior setting, and the latter one uses regularized horseshoe prior (also called Finnish horseshoe) with an inverse-gamma(2,1) placed on c^2 regularizing the large signals.
-This model enables group varying shift by constructing a group GP, whose elements are determined by group kernel parameter. This paper also uses a zero-sum kernel, motivated by increasing identifiability. But the creator of these codes recently realized it does nothing to the group kernel because we have assumed independence between groups. The identifiability of this model demands more discussion and thoughts. The output of Stan is positive. I think there is no huge non-identifiability issues now. The reason might be, 1. the group kernel setting is correct, and we shouldn't have worried about identifiability issues; 2. Thanks to the horseshoe prior placed on group alpha, which pulls the group GP to 0, leading to disentanglement between group constant shift mu and group GP when GP is flat. 
 
 ## Simulation of priors on simple GP regression
 This section aims to show effect of different priors placed on GP magnitude.
@@ -24,14 +23,18 @@ This section aims to show effect of GPANCOVA models in faced with different data
 ANCOVA_sim.R simulate 8 artifical datasets with different nonlinearity levels in both global trend and group trend. And then used the GP_ANCOVA_constant.stan, GP_ANCOVA_7.stan, GP_ANCOVA_finnish.stan to fit the datasets.
 
 ## kidiq dataset
-The thesis uses kidiq.csv for a practical implementation. Subsequently using GP_ANCOVA_linear.stan, GP_ANCOVA_constant.stan, GP_ANCOVA_7.stan to fit the data. 
+The thesis uses kidiq.csv for a practical implementation. This section aims to show the GPANCOVA, together with a linear ANCOVA works in a real dataset.
 
-This section aims to show the GPANCOVA, together with a linear ANCOVA works in a real dataset. It indeed could model the potential nonlinearity in both global and group trend, though, in this case, the linear ANCOVA could have give a group mu_j that reflects group difference. While the GPANCOVA with varying shift could add some more subtle info regarding group difference through its length scale, amplitude. 
-
-GP_ANCOVA_linear.stan is a stan implementation of linear ANCOVA. 
+The thesis uses GP_ANCOVA_linear.stan, GP_ANCOVA_constant.stan, GP_ANCOVA_7.stan to fit the data. GP_ANCOVA_linear.stan is a stan implementation of linear ANCOVA. 
 
 The R code implements these analysis are: nieuw_kidiq_linear.R for data manipulation, calling stan and visualization in linear ANCOVA setting. nieuw_kidiq_constantGPANOVA.R for GPANOCOVA with constant shift, and nieuw_kidiq.R for GPANCOVA with varying shift.
 
+
+
+# notes on models, implementations for kid iq
+The GPANCOVA with varying group shift model enables group varying shift by constructing a group GP, whose elements are determined by group kernel parameter. This paper also uses a zero-sum kernel, motivated by increasing identifiability. But the creator of these codes recently realized it does nothing to the group kernel because we have assumed independence between groups. The identifiability of this model demands more discussion and thoughts. The output of Stan is positive. I think there is no huge non-identifiability issues now. The reason might be, 1. the group kernel setting is correct, and we shouldn't have worried about identifiability issues; 2. Thanks to the horseshoe prior placed on group alpha, which pulls the group GP to 0, leading to disentanglement between group constant shift mu and group GP when GP is flat. 
+
+The implementation on kidiq, indeed shows it GPANCOVA with varying group shift could model the potential nonlinearity in both global and group trend, though, the linear ANCOVA could also give a group mu_j that reflects group difference. The complex GPANCOVA with varying shift could add some more subtle info regarding group difference through its length scale, amplitude. 
 
 
 ### Useful references
