@@ -34,3 +34,7 @@ fit_results_ANCOVA_hs.RData
 kidiq_stan_fit_7.RData
 posterior_summary.RData
 progress.log
+GPR_invgamma101.rds
+GP_ANCOVA_constant.RData
+posterior_summary_compare_inv.RData
+GPR_invgamma105.rds

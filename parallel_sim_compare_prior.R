@@ -18,8 +18,11 @@ nonlinearity_levels <- 0:3 # 4 nonlinear levels, from total linear to total nonl
 beta <- 0.5 # this is linear effect
 x_test <- seq(-3, 3, length.out = 1) # only one test point, this is to ensure efficiency. Better practice is to cancel this part, and also change the Stan code. But I am lazy to do so
 
-model_files <- c("GPR_horseshoe.stan", "GPR_normal.stan", "GPR_invgamma.stan") # Stan files
-model_labels <- c("horseshoe", "normal", "invgamma") # lables 
+# model_files <- c("GPR_horseshoe.stan", "GPR_normal.stan", "GPR_invgamma.stan") # Stan files
+# model_labels <- c("horseshoe", "normal", "invgamma") # lables 
+model_files <- c("GPR_horseshoe.stan", "GPR_invgamma.stan", "GPR_invgamma105.stan", "GPR_invgamma101.stan") # Stan files
+model_labels <- c("horseshoe", "invgamma(1, 1)", "invgamma(1, 0.5)", "invgamma(1, 0.1)") # lables 
+
 
 generate_y <- function(x, level, beta = 0.5, sigma = 1) {
   w <- level / max(nonlinearity_levels)  # normalized nonlinearity level: 0, 1/3, 2/3, 1
@@ -70,6 +73,16 @@ true_df <- expand.grid(
   ) |>
   ungroup()
 
+theme_classic_box <- theme_classic(base_size = 10) +
+  theme(
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.7),
+    # axis.line = element_line(colour = "black", linewidth = 0),
+    axis.line = element_blank(),
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold", size = 10),
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 10),
+    legend.position = "top"
+  )
 # Plot
 ggplot(draws_df, aes(x = x, y = y_std, group = interaction(draw, level, sigma))) +
   # geom_line(alpha = 0.2, color = "#6c757d") +
@@ -82,6 +95,7 @@ ggplot(draws_df, aes(x = x, y = y_std, group = interaction(draw, level, sigma)))
   ) +
   theme_classic_box +
   theme(strip.text = element_text(face = "bold"))
+
 
 ## -----
 
@@ -167,43 +181,43 @@ posterior_summary_df <- bind_rows(results)
 posterior_summary_df$model <- factor(posterior_summary_df$model, levels = model_labels)
 posterior_summary_df$nonlinearity <- factor(posterior_summary_df$nonlinearity, levels = paste0("level_", nonlinearity_levels))
 session_info <- sessionInfo()
-save(posterior_summary_df, session_info, file = "posterior_summary.RData")
+# save(posterior_summary_df, session_info, file = "posterior_summary.RData")
+save(posterior_summary_df, session_info, file = "posterior_summary_compare_inv.RData")
 
 # rm(list = ls())
-load("posterior_summary.RData")
+# load("posterior_summary.RData")
 # Set factor level order explicitly
-posterior_summary_df$model <- factor(posterior_summary_df$model, levels = c("horseshoe", "normal", "invgamma"))
+# posterior_summary_df$model <- factor(posterior_summary_df$model, levels = c("horseshoe", "normal", "invgamma"))
+posterior_summary_df$model <- factor(posterior_summary_df$model, levels = c("horseshoe", "invgamma(1, 1)", "invgamma(1, 0.5)", "invgamma(1, 0.1)"))
+posterior_summary_df <- posterior_summary_df %>%
+  mutate(model = recode(model,
+                        "invgamma(1, 1)" = "IG(1, 1)",
+                        "invgamma(1, 0.5)" = "IG(1, 0.5)",
+                        "invgamma(1, 0.1)" = "IG(1, 0.1)"))
 
-# Custom color palette
-model_colors <- c(
-  "horseshoe" = "#c23726",
-  "normal" = "#1d336c",
-  "invgamma" = "#e8bf4d"
-)
-theme_classic_box <- theme_classic(base_size = 8) +
-  theme(
-    panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.7),
-    # axis.line = element_line(colour = "black", linewidth = 0),
-    axis.line = element_blank(),
-    strip.background = element_blank(),
-    strip.text = element_text(face = "bold", size = 9),
-    plot.title = element_text(hjust = 0.5, face = "bold", size = 10),
-    legend.position = "top"
-  )
+# 
+# # Custom color palette
+# model_colors <- c(
+#   "horseshoe" = "#c23726",
+#   "normal" = "#1d336c",
+#   "invgamma" = "#e8bf4d"
+# )
+
 # Generate the plots, 1 per nonlinearity level
 plots <- lapply(levels(posterior_summary_df$nonlinearity), function(nl) {
   df_sub <- posterior_summary_df %>% filter(nonlinearity == nl)
-  ggplot(df_sub, aes(x = model, y = alpha2_median, fill = model)) +
-    geom_boxplot(outlier.size = 0.5, alpha = 0.85) +
+  ggplot(df_sub, aes(x = model, y = alpha2_median)) +
+    geom_boxplot(outlier.size = 0.5, alpha = 0.5) +
     facet_grid(sigma ~ N, labeller = label_both) +
-    scale_fill_manual(values = model_colors) +
-    coord_cartesian(ylim = c(0, 5)) +
+    # scale_fill_manual(values = model_colors) +
+    # coord_cartesian(ylim = c(0, 5)) +
     # coord_cartesian(ylim = c(0, 3)) +
     # coord_cartesian(ylim = c(0, 1)) +
     labs(
       title = element_blank(),
       # x = paste0("prior used on ", expression(alpha)," or ",expression(alpha^2)),
-      x = expression("Prior placed on " * alpha ~ " or " ~ alpha^2),
+      # x = expression("Prior placed on " * alpha^2~ " or " ~ alpha^2),
+      x = expression("Prior placed on " * alpha^2),
       y = expression(median(alpha^2))
     ) +
     theme_classic_box +
@@ -222,8 +236,8 @@ plots <- lapply(levels(posterior_summary_df$nonlinearity), function(nl) {
   ggplot(df_sub, aes(x = model, y = alpha2_mean, fill = model)) +
     geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.5) +
     facet_grid(sigma ~ N, labeller = label_both) +
-    scale_fill_manual(values = model_colors) +
-    coord_cartesian(ylim = c(0, 8)) +
+    # scale_fill_manual(values = model_colors) +
+    # coord_cartesian(ylim = c(0, 8)) +
     # coord_cartesian(ylim = c(0, 4)) +
     # coord_cartesian(ylim = c(0, 1)) +
     labs(

@@ -41,7 +41,7 @@ kidiq_stan <- list(
 
 options(mc.cores = parallel::detectCores())
 kidiq_stan_fit_7 <- stan(
-  file = "GP_ANCOVA_7.stan",
+  file = "GP_ANCOVA_constant.stan",
   data = kidiq_stan,
   iter = 4000,
   chains = 4,
@@ -95,8 +95,8 @@ p1 <- ggplot(para_post[para_post$para %in% c("alpha", "sigma", "rho"),], aes(x =
   theme_classic_box +
   labs(title = element_blank(), y = "Posterior Values", x = element_blank())
 
-p2 <- ggplot(para_post[!(para_post$para %in% c("alpha", "sigma", "rho")), ],
-       aes(x = factor(group), y = value)) +
+p2 <- ggplot(para_post[para_post$para == "mu_j", ],
+             aes(x = factor(group), y = value)) +
   geom_boxplot(alpha = 0.5, outlier.size = 0.5) +
   facet_wrap(~ para, ncol = 3, scales = "free", 
              labeller = labeller(para = c(
@@ -104,7 +104,7 @@ p2 <- ggplot(para_post[!(para_post$para %in% c("alpha", "sigma", "rho")), ],
                "g_rho"   = "rho[group]",
                "mu_j"    = "mu[group]"
              ),
-               .default = label_parsed)) +
+             .default = label_parsed)) +
   scale_x_discrete(labels = c("1" = "j = 1 (Highschool False)", "2" = "j = 2 (Highschool True)")) +
   theme_classic_box +
   labs(title = element_blank(), y = "Posterior Values" , x = element_blank())
@@ -137,9 +137,9 @@ obs_df[, 1:3] <- mapply(function(x, mean, sd) x*sd + mean,
 X2_revert <- X2
 X2_revert[,1:2] <- mapply(function(x, mean, sd) x*sd + mean,
                           as.data.frame(X2_revert), # x
-                  std_stats[1,1:2], # mean
-                  std_stats[2,1:2],
-                  SIMPLIFY = TRUE)  # sd
+                          std_stats[1,1:2], # mean
+                          std_stats[2,1:2],
+                          SIMPLIFY = TRUE)  # sd
 ## testing prediction (function values & predictive samples) for plot
 f_test <- post_kid$f2 # function value
 f_test <- f_test * std_stats["sd", "kid_score"] + std_stats["mean", "kid_score"]

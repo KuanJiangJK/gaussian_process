@@ -58,21 +58,22 @@ all_scenarios <- bind_rows(lapply(alpha_vals, function(alpha) {
     bind_rows(group_funcs, global_df)
   })
 }), .id = NULL) %>%
-  mutate(
+    mutate(
     group = factor(group, levels = c("G1", "G2", "global")),
-    alpha_label = ifelse(alpha == 0, "alpha^2 == 0", "alpha^2 != 0"),
+    alpha_label = factor(alpha, levels = c(0, 1), labels = c(
+      "alpha[global]^2 == 0",
+      "alpha[global]^2 != 0"
+    )),
     alpha12_label = case_when(
-      alpha1 == 0 & alpha2 == 0 ~ "alpha[1]^2 == 0~','~alpha[2]^2 == 0",
-      alpha1 != 0 & alpha2 == 0 ~ "alpha[1]^2 != 0~','~alpha[2]^2 == 0",
-      alpha1 == 0 & alpha2 != 0 ~ "alpha[1]^2 == 0~','~alpha[2]^2 != 0",
-      alpha1 != 0 & alpha2 != 0 ~ "alpha[1]^2 != 0~','~alpha[2]^2 != 0"
-    ),
-    alpha_label = factor(alpha_label, levels = c("alpha^2 == 0", "alpha^2 != 0")),
-    alpha12_label = factor(alpha12_label, levels = c(
-      "alpha[1]^2 == 0~','~alpha[2]^2 == 0",
-      "alpha[1]^2 != 0~','~alpha[2]^2 == 0",
-      "alpha[1]^2 == 0~','~alpha[2]^2 != 0",
-      "alpha[1]^2 != 0~','~alpha[2]^2 != 0"
+      alpha1 == 0 & alpha2 == 0 ~ "alpha[group1]^2 == 0~','~alpha[group2]^2 == 0",
+      alpha1 != 0 & alpha2 == 0 ~ "alpha[group1]^2 != 0~','~alpha[group2]^2 == 0",
+      alpha1 == 0 & alpha2 != 0 ~ "alpha[group1]^2 == 0~','~alpha[group2]^2 != 0",
+      alpha1 != 0 & alpha2 != 0 ~ "alpha[group1]^2 != 0~','~alpha[group2]^2 != 0"
+    ) %>% factor(levels = c(
+      "alpha[group1]^2 == 0~','~alpha[group2]^2 == 0",
+      "alpha[group1]^2 != 0~','~alpha[group2]^2 == 0",
+      "alpha[group1]^2 == 0~','~alpha[group2]^2 != 0",
+      "alpha[group1]^2 != 0~','~alpha[group2]^2 != 0"
     ))
   )
 
@@ -80,10 +81,15 @@ all_scenarios <- bind_rows(lapply(alpha_vals, function(alpha) {
 ggplot(all_scenarios, aes(x = x, y = y, color = group, linetype = group)) +
   geom_line(linewidth = 0.4) +
   facet_grid(rows = vars(alpha_label), cols = vars(alpha12_label), labeller = label_parsed) +
-  scale_color_manual(values = c("G1" = "#c23726", "G2" = "#1d336c", "global" = "black")) +
-  scale_linetype_manual(values = c("G1" = "solid", "G2" = "solid", "global" = "twodash")) +
-  labs(
-    x = "x",
-    y = "y"
+  scale_color_manual(
+    values = c("G1" = "#c23726", "G2" = "#1d336c", "global" = "black"),
+    labels = c("G1" = "Group 1", "G2" = "Group 2", "global" = "Global")
   ) +
+  scale_linetype_manual(
+    values = c("G1" = "solid", "G2" = "solid", "global" = "twodash"),
+    labels = c("G1" = "Group 1", "G2" = "Group 2", "global" = "Global")
+  ) +
+  labs(x = "x", y = "y", color = "Function", linetype = "Function") +
   theme_classic_box
+
+
